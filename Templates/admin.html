@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='charts.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { font-family: 'Inter', Arial, sans-serif; }
+        .sidebar-link-active { background: #1e293b; color: #fff !important; }
+        .sidebar-link { transition: background 0.2s, color 0.2s; color: #cbd5e1; }
+        .sidebar-link:hover { background: #334155; color: #fff; }
+        .dropdown-menu { min-width: 160px; }
+        .sidebar-icon { width: 1.25rem; height: 1.25rem; margin-right: 0.75rem; }
+    </style>
+    <script>
+        function filterTable() {
+            const filter = document.getElementById("filter-input").value.toLowerCase();
+            const rows = document.querySelectorAll("table tbody tr");
+            rows.forEach(row => {
+                const username = row.querySelector("td:nth-child(3)").textContent.toLowerCase();
+                row.style.display = username.includes(filter) ? "" : "none";
+            });
+        }
+
+        function toggleAllCheckboxes(masterCheckbox) {
+            const checkboxes = document.querySelectorAll('table tbody input[type="checkbox"]');
+            checkboxes.forEach(checkbox => checkbox.checked = masterCheckbox.checked);
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelector(".dropdown > a").addEventListener("click", function (event) {
+                event.preventDefault(); // Prevent default action
+                let dropdownMenu = this.nextElementSibling;
+                dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block";
+            });
+        });
+    </script>
+</head>
+<body class="bg-slate-50 min-h-screen">
+<div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside class="bg-slate-900 text-white w-64 flex flex-col py-6 px-4 shadow-lg">
+        <div class="flex flex-col h-full">
+            <div class="flex items-center justify-center mb-8">
+                <img src="{{ url_for('static', filename='7491c7a6-b37a-425d-aae3-7da7c5ddce7e.png') }}" alt="ViCTAA" class="h-12 w-auto object-contain">
+            </div>
+            <nav>
+                <ul class="space-y-2">
+                    <li><a href="{{ url_for('admin_dashboard') }}" class="flex items-center px-4 py-2 rounded-lg sidebar-link {% if request.endpoint == 'admin_dashboard' %}sidebar-link-active{% endif %}"><svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8v-10h-8v10zm0-18v6h8V3h-8z"/></svg>Dashboard</a></li>
+                    <li><a href="{{ url_for('usb_control') }}" class="flex items-center px-4 py-2 rounded-lg sidebar-link {% if request.endpoint == 'usb_control' %}sidebar-link-active{% endif %}"><svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 7v6a6 6 0 0012 0V7"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19v2m-4-2h8"/></svg>USB-Control</a></li>
+                    <li><a href="{{ url_for('block_urls') }}" class="flex items-center px-4 py-2 rounded-lg sidebar-link {% if request.endpoint == 'block_urls' %}sidebar-link-active{% endif %}"><svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>Site Control</a></li>
+                    <li>
+                      <a href="#" onclick="toggleAuditDropdown(event)" class="flex items-center px-4 py-2 rounded-lg sidebar-link">
+                        <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17v-2a2 2 0 012-2h6a2 2 0 012 2v2"/></svg>
+                        Audit
+                        <svg id="auditChevron" class="inline ml-2 w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                      </a>
+                      <ul id="auditDropdownMenu" class="space-y-1 hidden">
+                        <li>
+                          <a href="{{ url_for('audit') }}" class="block px-4 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 pl-12">Audit</a>
+                        </li>
+                        <li>
+                          <a href="{{ url_for('blocked_audit') }}" class="block px-4 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 pl-12">Blocked Audit</a>
+                        </li>
+                      </ul>
+                    </li>
+                    <li><a href="{{ url_for('Licensing') }}" class="flex items-center px-4 py-2 rounded-lg sidebar-link {% if request.endpoint == 'Licensing' %}sidebar-link-active{% endif %}"><svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 17v-6m0 0V7m0 4l-4-4m4 4l4-4"/></svg>Licensing</a></li>
+                </ul>
+            </nav>
+            <div class="mt-auto mb-4 text-xs text-slate-400 text-center">
+                License expires on:<br>
+                <span class="font-semibold text-slate-300">{{ license_expiry_date or 'N/A' }}</span>
+            </div>
+            <form method="POST" action="{{ url_for('logout') }}" class="mt-0">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="w-full bg-slate-800 text-white px-4 py-2 rounded hover:bg-slate-700 transition flex items-center justify-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7" /></svg>Logout</button>
+            </form>
+        </div>
+    </aside>
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-8 bg-slate-50">
+        <div class="flex items-center justify-between mb-8">
+            <h1 class="text-4xl font-bold text-slate-900">Admin Dashboard</h1>
+            <div class="text-sm text-slate-500 bg-white px-4 py-2 rounded-lg shadow-sm border">Welcome back, Administrator</div>
+        </div>
+        <!-- Users and Reports Card -->
+        <div class="rounded-2xl border bg-white shadow-sm mb-8 w-full">
+            <div class="flex flex-col space-y-1.5 p-8 border-b">
+                <h3 class="text-xl font-semibold leading-none tracking-tight flex items-center gap-2"><svg class="h-6 w-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m13-3.13V7a4 4 0 00-3-3.87M9 4V7a4 4 0 003 3.87" /></svg>Users and Reports</h3>
+                <p class="text-base text-slate-500">Find all users here and access their reports here</p>
+            </div>
+            <div class="p-8 pt-0 space-y-6">
+                <div class="flex gap-4 mb-4">
+                    <input id="filter-input" type="text" placeholder="Enter username or user ID" onkeyup="filterTable()" class="flex-1 px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50">
+                    <button type="button" onclick="filterTable()" class="bg-slate-900 text-white px-6 py-3 rounded-lg hover:bg-slate-800 transition">Filter</button>
+                </div>
+                <form method="POST" action="{{ url_for('download_excel') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="border rounded-2xl overflow-hidden max-h-80 overflow-y-auto">
+                        <table class="w-full text-base">
+                            <thead class="sticky top-0 bg-slate-100 text-slate-700">
+                                <tr>
+                                    <th class="p-4 align-middle text-center w-12"><input type="checkbox" onclick="toggleAllCheckboxes(this)" class="align-middle" style="vertical-align: middle;"></th>
+                                    <th class="p-4 w-24 text-center">ID</th>
+                                    <th class="p-4 w-56 text-left">Username</th>
+                                    <th class="p-4 w-40 text-center">Login Status</th>
+                                    <th class="p-4 w-48 text-left">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                <tr class="even:bg-slate-50">
+                                    <td class="p-4 align-middle text-center w-12"><input type="checkbox" name="user_ids" value="{{ user.id }}" class="align-middle" style="vertical-align: middle;"></td>
+                                    <td class="p-4 w-24 text-center">{{ user.id }}</td>
+                                    <td class="p-4 w-56 text-left">{{ user.username }}</td>
+                                    <td class="p-4 w-40 text-center">
+                                        {% if user.login_status == 'logged_in' %}
+                                            <span class="inline-block px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">Online</span>
+                                        {% else %}
+                                            <span class="inline-block px-3 py-1 rounded-full bg-slate-200 text-slate-600 text-xs font-semibold">Offline</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="p-4 w-48 text-left">
+                                        <a href="{{ url_for('view_report', user_id=user.id) }}" class="inline-flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg hover:bg-slate-800 transition font-semibold" target="_blank"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268-2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>View Report</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="flex justify-end mt-4">
+                        <button type="submit" class="bg-slate-900 text-white px-6 py-3 rounded-lg hover:bg-slate-800 transition flex items-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10V6a5 5 0 0110 0v4" /></svg>Download Selected Reports</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Graphs and Insights Card -->
+        <div class="rounded-2xl border bg-white shadow-sm mb-8">
+            <div class="flex flex-col space-y-1.5 p-8 border-b">
+                <h3 class="text-xl font-semibold leading-none tracking-tight flex items-center gap-2"><svg class="h-6 w-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3v18h18" /></svg>Graphs and Insights</h3>
+                <p class="text-base text-slate-500">Select a user to view detailed scan insights and metrics</p>
+            </div>
+            <div class="p-8 pt-0 flex flex-col gap-4 flex-1">
+                <div class="mb-4 w-full flex flex-col md:flex-row gap-4 items-center justify-center">
+                    <label for="user-select" class="font-medium">Select User:</label>
+                    <select id="user-select" onchange="fetchUserInsights()" class="px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50">
+                        <option value="">--Select User--</option>
+                        {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                    <div class="bg-slate-100 rounded-lg p-4"><canvas id="threatChart"></canvas></div>
+                    <div class="bg-slate-100 rounded-lg p-4"><canvas id="vulnerabilityChart"></canvas></div>
+                    <div class="bg-slate-100 rounded-lg p-4"><canvas id="softwareChart"></canvas></div>
+                    <div class="bg-slate-100 rounded-lg p-4"><canvas id="usbChart"></canvas></div>
+                </div>
+                <div class="flex justify-end mt-4">
+                    <form method="POST" action="{{ url_for('download_reports_excel') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="bg-slate-900 text-white px-6 py-3 rounded-lg hover:bg-slate-800 transition flex items-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10V6a5 5 0 0110 0v4" /></svg>Download Excel Report</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- After Graphs and Insights Card, add User Status Overview Pie Chart Card -->
+        <div class="rounded-2xl border bg-white shadow-sm mb-8">
+            <div class="flex flex-col space-y-1.5 p-8 border-b">
+                <h3 class="text-xl font-semibold leading-none tracking-tight flex items-center gap-2">
+                    <svg class="h-6 w-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 11V7a4 4 0 118 0v4" /></svg>
+                    User Status Overview
+                </h3>
+                <p class="text-base text-slate-500">Real-time status of all users in the system</p>
+            </div>
+            <div class="p-8 flex flex-col items-center">
+                <div class="w-80 h-80 flex items-center justify-center">
+                    <canvas id="loginChart"></canvas>
+                </div>
+                <div class="flex justify-center gap-6 mt-6">
+                    <div class="flex items-center gap-2">
+                        <span class="w-4 h-4 rounded-full bg-green-500 inline-block"></span>
+                        <span class="text-sm">Logged In</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-4 h-4 rounded-full bg-red-500 inline-block"></span>
+                        <span class="text-sm">Logged Out</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- MAC Address Management Card -->
+        <div class="rounded-2xl border bg-white shadow-sm mb-8">
+            <div class="flex flex-col space-y-1.5 p-8 border-b">
+                <h3 class="text-xl font-semibold leading-none tracking-tight flex items-center gap-2"><svg class="h-6 w-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20v-6m0 0V4m0 10l-6-6m6 6l6-6" /></svg>MAC Address Management</h3>
+            </div>
+            <div class="p-8 flex-1 overflow-y-auto max-h-96">
+                <table class="w-full text-base">
+                    <thead class="bg-slate-100 text-slate-700">
+                        <tr>
+                            <th class="p-4">User ID</th>
+                            <th class="p-4">Username</th>
+                            <th class="p-4">Current MAC Address</th>
+                            <th class="p-4">Update MAC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr class="even:bg-slate-50">
+                            <td class="p-4">{{ user.id }}</td>
+                            <td class="p-4">{{ user.username }}</td>
+                            <td class="p-4">{{ user.mac_address if user.mac_address else 'Not set' }}</td>
+                            <td class="p-4">
+                                <form action="{{ url_for('update_mac', user_id=user.id) }}" method="POST" class="flex gap-2">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input type="text" name="mac_address" required value="{{ user.mac_address or '' }}" placeholder="xx:xx:xx:xx:xx:xx" class="px-4 py-2 border border-slate-300 rounded-lg">
+                                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">Update</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+<!-- Modal for Pie Chart Interactivity -->
+<div id="userStatusModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
+        <h2 class="text-xl font-bold mb-4" id="modalTitle"></h2>
+        <ul id="modalUserList" class="mb-4 text-slate-700"></ul>
+        <button onclick="closeUserStatusModal()" class="bg-slate-900 text-white px-4 py-2 rounded hover:bg-slate-800 transition">Close</button>
+    </div>
+</div>
+<script src="static/login_status.js"></script>
+<script>
+function toggleAuditDropdown(event) {
+  event.preventDefault();
+  var menu = document.getElementById('auditDropdownMenu');
+  var chevron = document.getElementById('auditChevron');
+  if (menu) menu.classList.toggle('hidden');
+  if (chevron) chevron.classList.toggle('rotate-180');
+}
+// Pie chart interactivity
+function closeUserStatusModal() {
+    document.getElementById('userStatusModal').classList.add('hidden');
+}
+function showUserStatusModal(title, users) {
+    document.getElementById('modalTitle').textContent = title;
+    const list = document.getElementById('modalUserList');
+    list.innerHTML = '';
+    users.forEach(u => {
+        const li = document.createElement('li');
+        li.textContent = u;
+        list.appendChild(li);
+    });
+    document.getElementById('userStatusModal').classList.remove('hidden');
+}
+// Wait for Chart.js pie chart to render, then add click event
+function bindPieChartClick() {
+    if (window.loginChart && window.loginChart.config && window.loginChart.config.type === 'pie') {
+        document.getElementById('loginChart').onclick = function(evt) {
+            const activePoints = window.loginChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+            if (activePoints.length > 0) {
+                const idx = activePoints[0].index;
+                if (idx === 0) {
+                    showUserStatusModal('Logged In Users', [{% for user in users if user.login_status == 'logged_in' %}'{{ user.username }}',{% endfor %}]);
+                } else if (idx === 1) {
+                    showUserStatusModal('Logged Out Users', [{% for user in users if user.login_status != 'logged_in' %}'{{ user.username }}',{% endfor %}]);
+                }
+            }
+        };
+        return true;
+    }
+    return false;
+}
+window.addEventListener('DOMContentLoaded', function() {
+    let attempts = 0;
+    function tryBind() {
+        if (!bindPieChartClick() && attempts < 10) {
+            attempts++;
+            setTimeout(tryBind, 300);
+        }
+    }
+    tryBind();
+});
+</script>
+</body>
+</html>

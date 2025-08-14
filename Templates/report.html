@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='report.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+    <title>Device Report</title>
+</head>
+<body>
+    <h1>Device Report</h1>
+    
+    <h2 class="toggle-header" style="display: block;">CPU Information test<span class="icon">▼</span></h2>
+    <ul class="toggle-list open">
+        <li>Username: {{ logged_in_user }}</li>
+        {% for cpu in cpu_info %}
+        <li>Name: {{ cpu.Name }}, Cores: {{ cpu.Cores }}, Threads: {{ cpu.Threads }}, Max Clock Speed: {{ cpu.MaxClockSpeed }} MHz</li>
+        {% endfor %}
+    </ul>
+
+    <h2 class="toggle-header">Memory Information<span class="icon">▼</span></h2>
+    <ul class="toggle-list open">
+        {% for mem in memory_info %}
+        <li>Capacity: {{ mem.Capacity }} GB, Speed: {{ mem.Speed }} MHz, Manufacturer: {{ mem.Manufacturer }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2 class="toggle-header">Disk Information<span class="icon">▼</span></h2>
+    <ul class="toggle-list open">
+        {% for disk in disk_info %}
+        <li>Model: {{ disk.Model }}, Size: {{ disk.Size }} GB, Interface Type: {{ disk.InterfaceType }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2 class="toggle-header" style="display: block;">Threat Profile Summary<span class="icon">▼</span></h2>
+    <ul class="toggle-list open">
+        <li><strong>OS:</strong> {{ threat_profile.os_name }} {{ threat_profile.os_version }}</li>
+        <li><strong>Hostname:</strong> {{ threat_profile.hostname }}</li>
+        <li><strong>Architecture:</strong> {{ threat_profile.architecture }}</li>
+        <li><strong>MAC Address:</strong> {{ threat_profile.mac_address }}</li>
+
+        <br><strong>Security Controls:</strong>
+        <ul>
+            <li>BitLocker Enabled: {{ "Yes" if threat_profile.security_controls.BitLocker else "No" if threat_profile.security_controls else "No data" }}</li>
+            <li>Firewall Enabled: {{ "Yes" if threat_profile.security_controls.Firewall else "No" if threat_profile.security_controls else "No data" }}</li>
+            <li>Windows Defender Running: {{ "Yes" if threat_profile.security_controls.WindowsDefender else "No" if threat_profile.security_controls else "No data" }}</li>
+        </ul>
+    </ul>
+
+    <h2 class="toggle-header">AI-Predicted Threats<span class="icon">▼</span></h2>
+    <ul class="toggle-list">
+        {% for threat in llm_threats %}
+            <li>{{ threat }}</li>
+        {% else %}
+            <li>No threats predicted by AI.</li>
+        {% endfor %}
+    </ul>
+
+    <h2 class="toggle-header">Service Accounts<span class="icon">▼</span></h2>
+    <ul class="toggle-list">
+        {% if service_accounts %}
+            {% for account in service_accounts %}
+                <li><strong>Service:</strong> {{ account['service'] }} | <strong>Account:</strong> {{ account['account'] }}</li>
+            {% endfor %}
+        {% else %}
+            <li>No service accounts found.</li>
+        {% endif %}
+    </ul>
+
+    <h2 class="toggle-header">Network Information<span class="icon">▼</span></h2>
+    <ul class="toggle-list">
+        {% for net in network_info %}
+        <li>Hostname: {{ net.Hostname }}, IP Address: {{ net.IPAddress }}</li>
+        {% endfor %}
+    </ul>
+    
+    <h2 class="toggle-header">Patch Updates<span class="icon">▼</span></h2>
+    <ul class="toggle-list">
+        {% if patch_updates %}
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Update ID</th>
+                        <th>Installed On</th>
+                        <th style="width:50%">Details</th>
+                        <th>Status</th>
+                        <th>Impact Score</th> <!-- New column for Impact Score -->
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for update in patch_updates %}
+                        <tr {% if update.status == "Missing Patch" %} style="background-color:#ffcccb;" {% endif %}>
+                            <td>{{ update.id }}</td>
+                            <td>{{ update.installed_on }}</td>
+                            <td>{{ update.details }}</td>
+                            <td>{{ update.status }}</td>
+                            <td>{{ update.impact_score }} </td> <!-- Display Impact Score -->
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No patch updates found.</p>
+        {% endif %}
+    </ul>
+    <h2 class="toggle-header">Battery Health<span class="icon">▼</span></h2>
+    <ul class="toggle-list">
+    <p><strong>Battery Percentage:</strong> {{ battery_health.percentage }}%</p>
+    <p><strong>Charging Status:</strong> {% if battery_health.charging %} Charging {% else %} Not Charging {% endif %}</p>
+    <p><strong>Time Remaining:</strong> {{ battery_health.time_remaining }}</p>
+    </ul>
+
+    <h2 class="toggle-header">VPN Detections<span class="icon">▼</span></h2>
+    <ul class="toggle-list">
+        
+            <li>Public IP: {{ vpn_status.public_ip if vpn_status.public_ip else "Unavailable" }}</li>
+            <li>System-Level VPN Detected: {{ "Yes" if vpn_status.system_vpn_status else "No" }}</li>
+            <li>Public IP Indicates VPN: {{ "Yes" if vpn_status.public_ip_vpn_status else "No" }}</li>
+        
+    </ul>
+    
+    <h2 class="toggle-header">USB Ports Status<span class="icon">▼</span></h2>
+    <ul class="toggle-list">
+        {% for usb in usb_ports_status %}
+            <li>Port: {{ usb.port }} - Status: {{ usb.status }}</li>
+        {% else %}
+            <li>No USB devices found or the system is unable to retrieve USB status.</li>
+        {% endfor %}
+    </ul>
+
+  <!--  <h2 class="toggle-header">Detected USB Devices</h2>
+    <ul class="toggle-list">
+        <li>Number of USB Ports Opened: {{ usb_ports_count }}</li>
+        {% if usb_activity %}
+        {% for usb in usb_activity %}
+        <li>
+            Device Name: {{ usb.Name }}<br>
+            Device ID: {{ usb.DeviceID }}<br>
+            PNP Device ID: {{ usb.PNPDeviceID }}<br>
+            Last Connected: {{ usb.EventTime }} 
+        </li>    
+        {% endfor %}
+        {% else %}
+        <li>No recent USB activity detected.</li>
+        {% endif %}
+    </ul> -->
+
+    <h2 class="toggle-header">USB Activity History (Last 10 Days)<span class="icon">▼</span></h2>
+    <ul class="toggle-list">
+    {% if usb_history %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Event ID</th>
+                    <th>Event Category</th>
+                    <th>Action</th>
+                    <th>Device ID</th>
+                    <th>Event Time</th>
+                    <th style="width:70%">Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in usb_history %}
+                    <tr>
+                        <td>{{ entry.EventID }}</td>
+                        <td>{{ entry.EventCategory }}</td>
+                        <td>{{ entry.Action }}</td>
+                        <td>{{ entry.DeviceID }}</td>
+                        <td>{{ entry.EventTime }}</td>
+                        <td>{{ entry.StringInserts }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No USB activity detected in the last 10 days.</p>
+    {% endif %}
+    </ul>
+
+    <h2 class="toggle-header">VPN Usage History (Last 24 Hours)<span class="icon">▼</span></h2>
+        <ul class="toggle-list">
+            {% for record in vpn_history %}
+                <li>
+                    Time: {{ record.timestamp }}, 
+                    Public IP: {{ record.vpn_status.public_ip }},
+                    System VPN Active: {{ record.vpn_status.system_vpn_status }},
+                    Public IP VPN Detected: {{ record.vpn_status.public_ip_vpn_status }}
+                </li>
+            {% else %}
+                <li>No VPN activity detected in the last 24 hours.</li>
+            {% endfor %}
+        </ul>
+
+        <h2 class="toggle-header">Recently Used Applications<span class="icon">▼</span></h2>
+        <ul class="toggle-list">
+            {% if recent_apps %}
+                {% for app, details in recent_apps.items() %}
+                    <li {% if details.highlight %} style="color: red; font-weight: bold;" {% endif %}>
+                        {{ app }} - Last Used: {{ details.last_used }} - Time Spent: {{ details.time_spent }}
+                        {% if details.highlight %} ⚠️ Restricted {% endif %}
+                    </li>
+                {% endfor %}
+            {% else %}
+                <li>No recently used applications found.</li>
+            {% endif %}
+        </ul>
+
+
+        <h2 class="toggle-header">Unused Applications (Last 7 Days)<span class="icon">▼</span></h2>
+        <ul class="toggle-list">
+            {% for app in unused_apps %}
+                <li {% if app in restricted_apps %} style="color: red; font-weight: bold;" {% endif %}>
+                    {{ app }} - Last Used: N/A
+                    {% if app in restricted_apps %} ⚠️ Restricted {% endif %}
+                </li>
+            {% else %}
+                <li>No unused applications found.</li>
+            {% endfor %}
+        </ul>
+
+         
+
+    <h2 class="toggle-header">Vulnerability Detections<span class="icon">▼</span></h2>
+    <ul class="toggle-list">
+        {% for vulnerability in vulnerabilities %}
+            <li>
+                Vulnerability ID: {{ vulnerability.id }} <br>
+                Description: {{ vulnerability.description }} <br>
+                Severity: {{ vulnerability.severity }}
+            </li>
+        {% else %}
+            <li>No vulnerabilities found.</li>
+        {% endfor %}
+    </ul>
+
+    <h2 class="toggle-header">Detected Threats<span class="icon">▼</span></h2>
+    <ul class="toggle-list">
+        {% if threats %}
+            {% for threat in threats %}
+                <li>{{ threat }}</li>
+            {% endfor %}
+        {% else %}
+            <li>No threats detected.</li>
+        {% endif %}
+    </ul>
+
+    <h2 class="toggle-header">Installed Software<span class="icon">▼</span></h2>
+    <ul class="toggle-list">
+        {% for software in installed_software %}
+            <li>{{ software.name }} (Version: {{ software.version }}, Vendor: {{ software.vendor }}, Last Used: {{ software.last_used if software.last_used else 'Unknown' }})</li>
+        {% else %}
+            <li>No installed software found.</li>
+        {% endfor %}
+    </ul>
+
+    <h2 class="toggle-header">Network Ports<span class="icon">▼</span></h2>
+    <ul class="toggle-list">
+        {% for port in open_ports %}
+            <li>Port: {{ port }}</li>
+        {% else %}
+            <li>No open ports detected.</li>
+        {% endfor %}
+    </ul>
+
+    <h2 class="toggle-header">System Ports<span class="icon">▼</span></h2>
+    <ul class="toggle-list">
+        <table>
+        <thead>
+            <tr>
+                <th>Port Number</th>
+                <th>State</th>
+                <th>Process</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if sys_open_ports %}
+                {% for port_info in sys_open_ports %}
+                    <tr>
+                        <td>{{ port_info.port }}</td>
+                        <td>{{ port_info.state }}</td>
+                        <td>{{ port_info.process }}</td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="3" class="no-data">No open ports detected.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    </ul>
+
+    <h2 class="toggle-header">Cookies & Cache Files<span class="icon">▼</span></h2>
+    <ul class="toggle-list">
+        {% if cache_files %}
+            {% for file in cache_files %}
+                <li>{{ file }}</li>
+            {% endfor %}
+        {% else %}
+            <li>No cache files found on the system.</li>
+        {% endif %}
+    </ul>
+
+    <h2 class="toggle-header">Restricted Files<span class="icon">▼</span></h2>
+    <ul class="toggle-list">
+        {% if restricted_files %}
+            {% for file in restricted_files %}
+                <li>{{ file }}</li>
+            {% endfor %}
+        {% else %}
+            <li>No restricted files detected.</li>
+        {% endif %}
+    </ul>
+
+    <!-- <a href="{{ url_for('welcome') }}">Back to Welcome</a> -->
+
+    <!-- Link to the external JavaScript file -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

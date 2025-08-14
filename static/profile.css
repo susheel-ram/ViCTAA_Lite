@@ -1,0 +1,68 @@
+/* profile.css - refined to fit your existing global styles */
+
+/* Override only profile-specific styles, keep body & header consistent */
+.container {
+    max-width: 700px;
+    margin: 40px auto;
+    background-color: white;
+    padding: 25px 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+h3 {
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #284896; /* Use your global header blue color */
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+ul li {
+    padding: 12px 0;
+    border-bottom: 1px solid #ddd;
+    font-size: 16px;
+    color: #333;
+}
+
+ul li strong {
+    display: inline-block;
+    width: 160px;
+    color: #222;
+}
+
+/* Use your global button styles for consistency */
+button {
+    background-color: #284896; /* Same as header/nav color */
+    border: none;
+    padding: 10px 20px;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+    margin-top: 20px; /* spacing from other elements */
+}
+
+button:hover {
+    background-color: #5a93b6; /* your global hover blue */
+}
+
+/* Responsive tweaks */
+@media (max-width: 600px) {
+    .container {
+        margin: 20px 15px;
+        padding: 20px;
+    }
+    ul li strong {
+        width: 120px;
+    }
+    nav ul li {
+        margin-left: 12px;
+    }
+}

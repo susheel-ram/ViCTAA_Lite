@@ -1,0 +1,212 @@
+/* Basic styles for the layout */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            background-color: #284896;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        nav ul li {
+            margin-right: 50px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+
+        header h2 {
+            margin: 0;
+        }
+
+        header button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        header button:hover {
+            background-color: #d32f2f;
+        }
+
+        .container {
+            padding: 20px;
+        }
+/* Device test button styling */
+.test-button {
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    background-color: #284896;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    margin-top: 20px; /* Space between other elements */
+}
+
+.test-button:hover {
+    background-color: #5a93b6;
+}
+
+/* Result display styling */
+.result {
+    margin-top: 20px;
+    font-size: 16px;
+    color: #333;
+}
+
+.dashboard {
+    display: flex;
+    justify-content: space-around;
+    margin: 15px 0;
+}
+
+.dashboard-item {
+    width: 21.5%;
+    padding: 20px;
+    text-align: center;
+    background-color: #f4f4f4;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.dashboard-item h3 {
+    margin: 0;
+    font-size: 1.2em;
+    color: #333;
+}
+
+.dashboard-item p {
+    font-size: 3em;
+    color: #007BFF;
+    margin: 10px 0 0;
+    font-weight: bold;
+}
+
+.dashboard-item:hover {
+    transform: scale(1.05);
+}
+
+.scan-block {
+    position: absolute; /* Position the block absolutely */
+    top: 66%; /* Align vertically to the center */
+    right: 190px; /* Keep some distance from the right edge */
+    transform: translateY(-50%); /* Adjust to align center perfectly */
+    width: 26%;
+    padding: 20px;
+    text-align: center;
+    background-color: #f4f4f4;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.scan-block h3 {
+    margin: 0;
+    font-size: 1.6em;
+    color: #333;
+}
+
+.scan-block p {
+    font-size: 2.0em;
+    color: #007BFF;
+    margin: 10px 0 0;
+    font-weight: bold;
+}
+
+/* Profile page content styles scoped to avoid affecting header/buttons */
+.profile-content {
+    max-width: 700px;
+    margin: 40px auto;
+    background-color: white;
+    padding: 25px 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.profile-content h3 {
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #284896; /* your header/nav blue */
+}
+
+.profile-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.profile-content ul li {
+    padding: 12px 0;
+    border-bottom: 1px solid #ddd;
+    font-size: 16px;
+    color: #333;
+}
+
+.profile-content ul li strong {
+    display: inline-block;
+    width: 160px;
+    color: #222;
+}
+
+.profile-content form button {
+    background-color: #284896;
+    border: none;
+    padding: 10px 20px;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: background-color 0.3s ease;
+    margin-top: 20px;
+}
+
+.profile-content form button:hover {
+    background-color: #5a93b6;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .profile-content {
+        margin: 20px 15px;
+        padding: 20px;
+    }
+    .profile-content ul li strong {
+        width: 120px;
+    }
+}
+
+.header-logo {
+        height: 35px; /* adjust to your image size */
+        margin-right: 20px;
+        margin-left: 30px;
+}

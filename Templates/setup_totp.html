@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='nav.css') }}">
+    <title>Setup TOTP Authentication</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            margin: auto;
+        }
+        h2 {
+            color: #333;
+        }
+        img {
+            width: 200px;
+            height: 200px;
+            margin: 10px 0;
+        }
+        .backup-codes {
+            background: #eee;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: left;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h2>Welcome, {{ session['username'] }}!</h2>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('welcome') }}">Home</a></li>
+                <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                <li><a href="{{ url_for('settings') }}">Settings</a></li>
+            </ul>
+        </nav>
+        <form method="POST" action="{{ url_for('logout') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> <!-- Hidden CSRF token -->
+            <button type="submit">Logout</button>
+        </form>
+    </header>
+
+    <div class="container">
+        <h2>Setup TOTP Authentication</h2>
+        
+        <p>Scan the QR code below with your authenticator app:</p>
+        <img src="data:image/png;base64,{{ qr_code }}" alt="TOTP QR Code">
+
+        <p><strong>Or manually enter this key:</strong></p>
+        <p style="background: #eee; padding: 10px; border-radius: 5px;">{{ totp_secret }}</p>
+
+        <h3>Backup Codes:</h3>
+        <div class="backup-codes">
+            <ul>
+                {% for code in backup_codes %}
+                    <li>{{ code }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <p><small>Keep these backup codes safe. Each code can be used multiple times.</small></p>
+
+        <form action="{{ url_for('re_register_totp') if 're_register_totp' in url_map else '#' }}" method="post">
+            <button type="submit">Re-register TOTP</button>
+        </form>
+    </div>
+
+</body>
+</html>

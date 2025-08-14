@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verify OTP</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='settings-verify-otp.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h3>Enter OTP to Verify Your Password Reset Request</h3>
+        <form method="POST" action="{{ url_for('settings_verify_otp_process', token=token) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label for="otp">OTP:</label>
+            <input type="text" name="otp" id="otp" required maxlength="6" pattern="\d{6}">
+            <button type="submit">Verify OTP</button>
+        </form>
+    </div>
+</body>
+</html>

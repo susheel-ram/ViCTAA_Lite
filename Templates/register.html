@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+    <script>
+        // Simple client-side validation for the phone number
+        function validatePhone() {
+            const phoneInput = document.getElementById('phone');
+            const phonePattern = /^\+?1?\d{9,15}$/;  // Example pattern for phone validation
+            if (!phonePattern.test(phoneInput.value)) {
+                alert("Please enter a valid phone number.");
+                return false;
+            }
+            return true;
+        }
+    </script>
+</head>
+<body>
+    <div class="create-box">
+
+        <!-- Flashed Messages Section -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for message in messages %}
+            <p class="flash-message">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+<!-- register.html -->
+<form action="{{ url_for('register_user') }}" method="POST">
+
+    <img src="..\static\v1.png" alt="Logo" class="logo" width="100" height="100">
+
+    <h3>Create Your  Account</h3>
+
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+
+    <label for="phone">Phone:</label>
+    <input type="text" id="phone" name="phone" required>
+
+    <label for="license_key">Organization:</label>
+    <input type="text" id="organization" name="organization" required>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+
+    <label for="license_key">License Key:</label>
+    <input type="text" id="license_key" name="license_key" required>
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">  <!-- For CSRF protection -->
+
+    <button type="submit">Create</button>
+</form><br>
+<div class="options">
+    <a href="{{ url_for('login_form') }}"> already have an account Login</a>
+</div>
+    </div>
+</body>
+</html>

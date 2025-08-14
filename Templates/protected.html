@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protected Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        header button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        header button:hover {
+            background-color: #d32f2f;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        /* Add your styles for the page content */
+        .welcome-message {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+    </style>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Protected Page</title>
+        <script>
+            // Function to check if user is logged in
+            function checkSession() {
+                // You can check some client-side state here if necessary,
+                // or simply redirect if the session has expired.
+                fetch('/check-session')  // This is a route to check if user is still logged in
+                    .then(response => {
+                        if (response.status !== 200) {  // Not logged in
+                            window.location.href = '/login';  // Redirect to login
+                        }
+                    })
+                    .catch(error => console.error('Error checking session:', error));
+            }
+    
+            // Call the function on page load
+            window.onload = checkSession;
+    
+            // Clear the history state on logout
+            function clearHistory() {
+                history.pushState(null, document.title, location.href);
+                window.addEventListener('popstate', function (event) {
+                    history.pushState(null, document.title, location.href);
+                });
+            }
+    
+            // Call this function to clear history on logout
+            window.onload = clearHistory;
+        </script>
+    </head>
+<body>
+    <!-- Main content container -->
+    <div class="container">
+        <div class="content">
+            <p class="welcome-message">Welcome back, {{ session['username'] }}!</p>
+            <p>This is your protected area where you can access exclusive content.</p>
+            <p>Here are some of the features you can use:</p>
+            <ul>
+                <li><strong>Manage your account:</strong> Update your profile information, change your password, etc.</li>
+                <li><strong>Access exclusive content:</strong> View documents, videos, or other resources only available to logged-in users.</li>
+                <li><strong>Contact support:</strong> Get help with any issues or questions you may have.</li>
+            </ul>
+            <p>Feel free to explore and make the most out of your account!</p>
+        </div>
+    </div>
+
+</body>
+</html>

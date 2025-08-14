@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .sidebar-icon { width: 1.25rem; height: 1.25rem; margin-right: 0.75rem; }
+    </style>
+</head>
+<body class="bg-slate-50">
+<div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside class="bg-slate-900 text-white w-64 flex flex-col h-full py-6 px-4 shadow-lg">
+        <div class="flex flex-col h-full">
+            <div class="flex items-center justify-center mb-8">
+                <img src="/static/7491c7a6-b37a-425d-aae3-7da7c5ddce7e.png" alt="ViCTAA" class="h-12 w-auto object-contain">
+            </div>
+            <nav>
+                <ul class="space-y-2">
+                    <li><a href="{{ url_for('admin_dashboard') }}" class="flex items-center px-4 py-2 rounded-lg sidebar-link {% if request.endpoint == 'admin_dashboard' %}sidebar-link-active{% endif %}"><svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8v-10h-8v10zm0-18v6h8V3h-8z"/></svg>Dashboard</a></li>
+                    <li><a href="{{ url_for('usb_control') }}" class="flex items-center px-4 py-2 rounded-lg sidebar-link {% if request.endpoint == 'usb_control' %}sidebar-link-active{% endif %}"><svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 7v6a6 6 0 0012 0V7"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19v2m-4-2h8"/></svg>USB-Control</a></li>
+                    <li><a href="{{ url_for('block_urls') }}" class="flex items-center px-4 py-2 rounded-lg sidebar-link {% if request.endpoint == 'block_urls' %}sidebar-link-active{% endif %}"><svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>Site Control</a></li>
+                    <li>
+                        <a href="#" onclick="toggleAuditDropdown(event)" class="flex items-center px-4 py-2 rounded-lg sidebar-link">
+                            <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17v-2a2 2 0 012-2h6a2 2 0 012 2v2"/></svg>
+                            Audit
+                            <svg id="auditChevron" class="sidebar-icon transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </a>
+                        <ul id="auditDropdownMenu" class="space-y-1 hidden">
+                            <li><a href="{{ url_for('audit') }}" class="block px-4 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 pl-12">Audit</a></li>
+                            <li><a href="{{ url_for('blocked_audit') }}" class="block px-4 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 pl-12">Blocked Audit</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="{{ url_for('Licensing') }}" class="flex items-center px-4 py-2 rounded-lg sidebar-link {% if request.endpoint == 'Licensing' %}sidebar-link-active{% endif %}"><svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 17v-6m0 0V7m0 4l-4-4m4 4l4-4"/></svg>Licensing</a></li>
+                </ul>
+            </nav>
+            <div class="mt-auto mb-4 text-xs text-slate-400 text-center">
+                License expires on:<br>
+                <span class="font-semibold text-slate-300">{{ license_expiry_date if license_expiry_date else 'No license found' }}</span>
+            </div>
+            <form method="POST" action="{{ url_for('logout') }}" class="mt-0">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="w-full bg-slate-800 text-white px-4 py-2 rounded hover:bg-slate-700 transition flex items-center justify-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7" /></svg>Logout</button>
+            </form>
+        </div>
+    </aside>
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-8 bg-slate-50">
+        <div class="space-y-8 w-full">
+            <div class="rounded-2xl border bg-white shadow-sm p-8 mb-8">
+                <h1 class="text-3xl font-bold mb-6">Audit Report</h1>
+                <div class="flex flex-col md:flex-row md:items-end gap-4 mb-6">
+                    <input id="filter-input" type="text" placeholder="Search by ID..." class="w-full md:w-1/3 rounded-lg border border-slate-300 py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500" onkeyup="filterTable()">
+                    <button type="button" onclick="filterTable()" class="rounded-lg bg-slate-900 text-white font-semibold px-6 py-2 shadow hover:bg-slate-800 transition">Filter</button>
+                </div>
+                <div class="overflow-x-auto" style="max-height: 400px;">
+                    <table class="min-w-full divide-y divide-slate-200 rounded-lg overflow-hidden">
+                        <thead class="bg-slate-100 sticky top-0">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Username</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Recent Login Time</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Location</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Device</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in audit_data %}
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">{{ row[0] }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">{{ row[1] }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">{{ row[2] }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900"><pre class="whitespace-pre-wrap">{{ row[3] }}</pre></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900"><pre class="whitespace-pre-wrap">{{ row[4] }}</pre></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <a href="{{ url_for('download_audit_report', filter=filter_value) }}">
+                    <button class="rounded-lg bg-red-600 text-white font-semibold px-6 py-2 shadow hover:bg-red-700 transition mt-6">Download Excel Report</button>
+                </a>
+            </div>
+        </div>
+    </main>
+</div>
+<script>
+    function filterTable() {
+        const filter = document.getElementById("filter-input").value.toLowerCase();
+        const rows = document.querySelectorAll("table tbody tr");
+        rows.forEach(row => {
+            const userId = row.querySelector("td:nth-child(1)").textContent.toLowerCase();
+            row.style.display = userId.includes(filter) ? "" : "none";
+        });
+    }
+    function toggleAuditDropdown(event) {
+        const dropdown = document.getElementById('auditDropdownMenu');
+        const chevron = document.getElementById('auditChevron');
+        dropdown.classList.toggle('hidden');
+        chevron.classList.toggle('rotate-180');
+        event.preventDefault();
+    }
+</script>
+</body>
+</html>

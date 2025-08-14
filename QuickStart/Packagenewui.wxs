@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" Name="ViCTAA Lite" Language="1033" Version="1.0.0.1" Manufacturer="Vardaan Data Sciences" UpgradeCode="9164b0ce-4a7e-4e30-b527-a1039901d69d">
+    <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" />
+    <MajorUpgrade AllowDowngrades="no" DowngradeErrorMessage="A newer version of ViCTAA Lite is already installed." />
+    
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="ViCTAA Lite">
+          <Component Id="MainExecutable" Guid="4a36216a-b433-4e88-9895-9fa017f097b3">
+            <File Id="ViCTAALiteExe" Name="ViCTAA_Lite.exe"
+                  Source="C:\Users\bhask\NewUI-ViCTAA_Lite\dist\ViCTAA_Lite.exe"
+                  KeyPath="yes" />
+          </Component>
+
+          <!-- User Manuals -->
+          <Component Id="UserManualsComponent" Guid="6ba0d60b-3eb2-46ca-84c6-3d5bac1217d7">
+            <File Id="AdminUserManual" Name="Admin_User_Manual.pdf" Source="C:\Users\bhask\NewUI-ViCTAA_Lite\QuickStart\Re_ Documents\Admin-User_Manual.pdf" />
+            <File Id="NonAdminUserManual" Name="Non-Admin_User_Manual.pdf" Source="C:\Users\bhask\NewUI-ViCTAA_Lite\QuickStart\Re_ Documents\Non-Admin_User_Manual.pdf" />
+            <File Id="ViCTAAENDUSERLICENSEAGREEMENT" Name="ViCTAA_END_USER_LICENSE_AGREEMENT.pdf" Source="C:\Users\bhask\NewUI-ViCTAA_Lite\QuickStart\Re_ Documents\ViCTAA-END_USER_LICENSE_AGREEMENT.pdf" />
+            <File Id="ViCTAAFAQPack" Name="ViCTAA_FAQ_Pack.pdf" Source="C:\Users\bhask\NewUI-ViCTAA_Lite\QuickStart\Re_ Documents\ViCTAA-FAQ_Pack.pdf" />
+            <File Id="ViCTAAOperationalHandbook" Name="ViCTAA-Operational_Handbook.pdf" Source="C:\Users\bhask\NewUI-ViCTAA_Lite\QuickStart\Re_ Documents\ViCTAA-Operational_Handbook.pdf" />
+          </Component>
+
+        </Directory>
+      </Directory>
+
+      <!-- Desktop Shortcut -->
+      <Directory Id="DesktopFolder" Name="Desktop">
+        <Component Id="DesktopShortcutComponent" Guid="088dd870-0829-4d07-8dff-9c846db6e48b">
+          <Shortcut Id="DesktopShortcut"
+                    Name="ViCTAA Lite"
+                    Description="ViCTAA Lite - Know Your Device Better"
+                    Target="[INSTALLFOLDER]ViCTAA_Lite.exe"
+                    WorkingDirectory="INSTALLFOLDER" />
+          <RemoveFolder Id="RemoveDesktopFolder" On="uninstall"/>
+          <RegistryValue Root="HKCU" Key="Software\ViCTAALite" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+        </Component>
+      </Directory>
+
+      <!-- Start Menu Shortcut -->
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ViCTAALiteProgramMenu" Name="ViCTAA Lite">
+          <Component Id="StartMenuShortcuts" Guid="0db170f7-3e52-4e68-b327-275edde2b3d0">
+            <Shortcut Id="StartMenuAppShortcut"
+                      Name="ViCTAA Lite"
+                      Description="ViCTAA Lite - Know Your Device Better"
+                      Target="[INSTALLFOLDER]ViCTAA_Lite.exe"
+                      WorkingDirectory="INSTALLFOLDER" />
+            <Shortcut Id="UninstallShortcut"
+                      Name="Uninstall ViCTAA Lite"
+                      Description="Uninstall ViCTAA Lite"
+                      Target="[SystemFolder]msiexec.exe"
+                      Arguments="/x [ProductCode]"
+                      WorkingDirectory="INSTALLFOLDER" />
+            <RemoveFolder Id="RemoveViCTAALiteProgramMenu" On="uninstall"/>
+            <RegistryValue Root="HKCU" Key="Software\ViCTAA Lite" Name="StartMenu" Type="integer" Value="1" KeyPath="yes"/>
+          </Component>
+        </Directory>
+      </Directory>
+
+    </Directory>
+
+    <Feature Id="ProductFeature" Title="ViCTAA Lite" Level="1">
+      <ComponentRef Id="MainExecutable" />
+      <ComponentRef Id="DesktopShortcutComponent" />
+      <ComponentRef Id="StartMenuShortcuts" />
+      <ComponentRef Id="UserManualsComponent" />
+    </Feature>
+
+    <Media Id="1" Cabinet="ViCTAALite.cab" EmbedCab="yes" />
+  </Product>
+</Wix>

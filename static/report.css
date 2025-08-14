@@ -1,0 +1,139 @@
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 20px;
+    background-color: #f4f4f4;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+h2 {
+    background-color: #007bff; /* Bootstrap primary color */
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+/* Initially hide the <ul> elements */
+.toggle-list {
+    display: none;
+    list-style-type: none; /* Remove default list styles */
+    padding: 0;
+    margin: 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff; /* White background for content */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd; /* Bottom border for separation */
+}
+
+li:last-child {
+    border-bottom: none; /* Remove border from the last item */
+}
+
+a {
+    display: inline-block;
+    margin-top: 20px;
+    text-decoration: none;
+    color: #007bff; /* Link color */
+    font-weight: bold;
+}
+
+a:hover {
+    text-decoration: underline; /* Underline on hover */
+}
+
+/* Optional: Styling for active <h2> when it's clicked */
+.toggle-header.active {
+    background-color: #0056b3;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+}
+
+table th, table td {
+    padding: 5px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    color: #555;
+}
+
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* No Data Styling */
+.no-data {
+    text-align: center;
+    font-style: italic;
+    color: #999;
+}
+
+/* Responsive Styling for Small Screens */
+@media (max-width: 768px) {
+    table {
+        font-size: 8px;
+    }
+
+    table th, table td {
+        padding: 5px;
+    }
+}
+
+.toc {
+    font-size: 16px;
+    font-weight: bold;
+    color: #0056b3;
+    margin-bottom: 15px;
+}
+.toc a {
+    text-decoration: none;
+    color: #0056b3;
+}
+.toc a:hover {
+    text-decoration: underline;
+}
+
+.toggle-header {
+    position: relative;
+    padding-right: 25px; /* Ensure space for the icon */
+}
+
+.toggle-header .icon {
+    position: absolute;
+    right: 15px;
+    font-size: 0.8em;
+    transition: transform 0.3s ease;
+}
+
+/* Rotate icon when collapsed */
+.toggle-header.collapsed .icon {
+    transform: rotate(-90deg);
+}
+
+.toggle-list.open {
+    display: block;
+}

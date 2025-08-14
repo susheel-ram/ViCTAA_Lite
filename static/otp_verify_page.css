@@ -1,0 +1,98 @@
+.otp-container {
+  max-width: 300px;
+  width: 100%;
+  margin: 60px auto;
+  padding: 35px 30px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+/* Style headings */
+.otp-container h2 {
+  margin-bottom: 30px;
+  font-weight: 600;
+  font-size: 24px;
+  color: #222;
+}
+
+label {
+  display: block;
+  text-align: left;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #555;
+  font-size: 14px;
+}
+
+/* Input */
+input[type="text"] {
+  width: 100%;
+  padding: 12px 10px;
+  font-size: 16px;
+  border: 1.8px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  outline-offset: 2px;
+  outline-color: #284896;
+  transition: border-color 0.25s ease;
+}
+
+input[type="text"]:focus {
+  border-color: #0073bb;
+  outline: none;
+}
+
+/* Each form styling */
+.otp-container form {
+  margin-bottom: 20px; /* space between forms */
+}
+
+/* Buttons centered and sized */
+.otp-container form button {
+  width: 140px; /* fixed width for buttons */
+  padding: 10px 0;
+  font-weight: 600;
+  font-size: 14px;
+  background-color: #0073bb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: block;
+  margin: 0 auto; /* center horizontally */
+}
+
+.otp-container form button:hover {
+  background-color: #005f8e;
+}
+
+/* Flash messages */
+.flash-messages {
+  margin-top: 25px;
+  padding: 12px 15px;
+  background-color: #ffe0e0;
+  border: 1px solid #f2158b;
+  border-radius: 6px;
+  color: #0b7c07;
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.4;
+  list-style: none;
+}
+
+.flash-messages li {
+  margin-bottom: 8px;
+}
+
+.top-left-logo {
+        position: absolute;
+        top: 20px;
+        left: 60px;
+        max-width: 150px;  /* Adjust as needed */
+        height: auto;
+        z-index: 999;
+}

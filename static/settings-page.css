@@ -1,0 +1,87 @@
+/* settings-page.css - Scoped styles for the Settings page */
+
+/* Body styling specific to Settings page */
+.settings-page {
+    background-color: #f7f9fc;  /* Light background color for settings */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+/* Container for settings content */
+.settings-page .container {
+    width: 100%;               /* Full width */
+    max-width: 1200px;         /* Maximum width for readability */
+    margin: 40px auto;         /* Centered horizontally */
+    padding: 20px 40px;        /* Padding for the content */
+    background-color: white;   /* White background for the content */
+    border-radius: 8px;        /* Rounded corners */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);  /* Light shadow */
+}
+
+/* Heading styling */
+.settings-page h3 {
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #284896;  /* Consistent header/nav blue */
+}
+
+/* Form elements for a clean layout */
+.settings-page label {
+    font-weight: bold;
+    display: block;
+    margin: 10px 0 5px;
+}
+
+.settings-page input[type="email"] {
+    width: 100%;         /* Full-width input fields */
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.settings-page button {
+    background-color: #f44336; /* Same as header/nav blue */
+    border: none;
+    padding: 10px 20px;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 0px;
+    transition: background-color 0.3s ease;
+}
+
+.settings-page button:hover {
+    background-color: #d32f2f; /* Hover effect */
+}
+
+/* Ensure the logout button stays red */
+header form button {
+    background-color: #f44336;  /* Red color for logout button */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+header form button:hover {
+    background-color: #d32f2f;  /* Darker red on hover */
+}
+
+/* Responsive for smaller screens */
+@media (max-width: 768px) {
+    .settings-page .container {
+        margin: 20px 15px;
+        padding: 20px;
+    }
+    .settings-page input[type="email"] {
+        font-size: 16px;  /* Make text larger for readability */
+    }
+    .settings-page button {
+        width: 100%;       /* Full-width buttons on small screens */
+    }
+}

@@ -1,0 +1,9 @@
+venv310/
+__pycache__/
+build/
+*.pyc
+*.pyo
+*.pyd
+*.log
+.DS_Store
+.env

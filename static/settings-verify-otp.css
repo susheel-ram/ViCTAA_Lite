@@ -1,0 +1,88 @@
+/* verify-otp.css */
+
+/* Basic page styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f9fc;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;  /* center horizontally */
+    align-items: center;      /* center vertically */
+    height: 100vh;            /* full viewport height */
+    color: #333;
+    box-sizing: border-box;
+}
+
+/* Container to hold all content */
+.container {
+    background-color: white;
+    padding: 30px 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    max-width: 400px;
+    width: 90%;
+    box-sizing: border-box;
+    text-align: center; /* center all text inside container */
+}
+
+/* Heading styling */
+h3 {
+    margin-bottom: 25px;
+    color: #284896;
+    font-weight: 600;
+}
+
+/* Form styling */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Label styling */
+label {
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #555;
+    text-align: left; /* keep labels left aligned */
+}
+
+/* Input field styling */
+input[type="text"] {
+    width: 100%;
+    padding: 12px 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* Button styling */
+button {
+    margin-top: 10px;
+    background-color: #284896;
+    color: white;
+    border: none;
+    padding: 14px 0;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #5a93b6;
+}
+
+/* Responsive tweaks */
+@media (max-width: 480px) {
+    .container {
+        padding: 20px;
+    }
+    button {
+        font-size: 18px;
+        padding: 16px 0;
+    }
+}

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .sidebar-icon { width: 1.25rem; height: 1.25rem; margin-right: 0.75rem; }
+    </style>
+</head>
+<body class="bg-slate-50">
+<div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside class="bg-slate-900 text-white w-64 flex flex-col h-full py-6 px-4 shadow-lg">
+        <div class="flex flex-col h-full">
+            <div class="flex items-center justify-center mb-8">
+                <img src="/static/7491c7a6-b37a-425d-aae3-7da7c5ddce7e.png" alt="ViCTAA" class="h-12 w-auto object-contain">
+            </div>
+            <nav>
+                <ul class="space-y-2">
+                    <li><a href="{{ url_for('admin_dashboard') }}" class="flex items-center px-4 py-2 rounded-lg sidebar-link {% if request.endpoint == 'admin_dashboard' %}sidebar-link-active{% endif %}"><svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8v-10h-8v10zm0-18v6h8V3h-8z"/></svg>Dashboard</a></li>
+                    <li><a href="{{ url_for('usb_control') }}" class="flex items-center px-4 py-2 rounded-lg sidebar-link {% if request.endpoint == 'usb_control' %}sidebar-link-active{% endif %}"><svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 7v6a6 6 0 0012 0V7"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19v2m-4-2h8"/></svg>USB-Control</a></li>
+                    <li><a href="{{ url_for('block_urls') }}" class="flex items-center px-4 py-2 rounded-lg sidebar-link {% if request.endpoint == 'block_urls' %}sidebar-link-active{% endif %}"><svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>Site Control</a></li>
+                    <li>
+                        <a href="#" onclick="toggleAuditDropdown(event)" class="flex items-center px-4 py-2 rounded-lg sidebar-link">
+                            <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17v-2a2 2 0 012-2h6a2 2 0 012 2v2"/></svg>
+                            Audit
+                            <svg id="auditChevron" class="sidebar-icon transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </a>
+                        <ul id="auditDropdownMenu" class="space-y-1 hidden">
+                            <li><a href="{{ url_for('audit') }}" class="block px-4 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 pl-12">Audit</a></li>
+                            <li><a href="{{ url_for('blocked_audit') }}" class="block px-4 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 pl-12">Blocked Audit</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="{{ url_for('Licensing') }}" class="flex items-center px-4 py-2 rounded-lg sidebar-link {% if request.endpoint == 'Licensing' %}sidebar-link-active{% endif %}"><svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 17v-6m0 0V7m0 4l-4-4m4 4l4-4"/></svg>Licensing</a></li>
+                </ul>
+            </nav>
+            <div class="mt-auto mb-4 text-xs text-slate-400 text-center">
+                License expires on:<br>
+                <span class="font-semibold text-slate-300">{{ license_expiry_date or 'N/A' }}</span>
+            </div>
+            <form method="POST" action="{{ url_for('logout') }}" class="mt-0">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="w-full bg-slate-800 text-white px-4 py-2 rounded hover:bg-slate-700 transition flex items-center justify-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7" /></svg>Logout</button>
+            </form>
+        </div>
+    </aside>
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-8 bg-slate-50">
+        <div class="space-y-8 w-full">
+            <!-- Block Website Card -->
+            <div class="rounded-2xl border bg-white shadow-sm p-8 mb-8">
+                <h1 class="text-3xl font-bold mb-6">Website Control</h1>
+                <!-- Flash messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="flash {{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <form action="{{ url_for('add_url') }}" method="post" class="flex flex-col md:flex-row md:items-end gap-4">
+                    <div class="flex-1">
+                        <label for="url" class="block font-medium mb-1">Enter website URL:</label>
+                        <input type="text" id="url" name="url" placeholder="e.g., example.com" required class="w-full rounded-lg border border-slate-300 py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="font-medium mb-1">Select Users</label>
+                        <div class="relative">
+                            <button type="button" id="userDropdownBtn" class="rounded-lg border border-slate-300 px-4 py-2 bg-white shadow-sm flex items-center gap-2 focus:outline-none">Select Users</button>
+                            <div id="userDropdown" class="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg z-20 p-4 hidden">
+                                <div class="mb-2 flex items-center">
+                                    <input type="checkbox" id="all_users" name="all_users" value="1" class="mr-2">
+                                    <label for="all_users" class="font-medium">All Users</label>
+                                </div>
+                                <div class="max-h-48 overflow-y-auto flex flex-col gap-1">
+                                    {% for user in users %}
+                                    <div>
+                                        <input type="checkbox" class="user-checkbox mr-2" name="user_ids[]" id="user_{{ user.id }}" value="{{ user.id }}">
+                                        <label for="user_{{ user.id }}">{{ user.username }}</label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="rounded-lg bg-slate-900 text-white font-semibold px-6 py-2 shadow hover:bg-slate-800 transition">Block Website</button>
+                </form>
+            </div>
+            <!-- Blocked Websites Card -->
+            <div class="rounded-2xl border bg-white shadow-sm p-8">
+                <h2 class="text-2xl font-bold mb-4">Blocked Websites</h2>
+                <input type="text" id="searchInput" class="w-full rounded-lg border border-slate-300 py-2 px-4 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Search by User ID / Name / Website">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-slate-200 rounded-lg overflow-hidden">
+                        <thead class="bg-slate-100">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Blocked Website</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">User ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Username</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="urlTableBody" class="bg-white divide-y divide-slate-200">
+                            {% for url in urls %}
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">{{ url.id }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">{{ url.block_url }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">{{ url.user_id if url.user_id else "Global"}}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">{{ url.username if url.username }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <a href="{{ url_for('delete_url', id=url.id) }}" class="rounded-lg bg-red-500 text-white font-semibold px-4 py-2 shadow hover:bg-red-600 transition" onclick="return confirm('Are you sure you want to unblock this website?')">Unblock</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script>
+    // Dropdown open/close
+    document.getElementById('userDropdownBtn').addEventListener('click', function() {
+        document.getElementById('userDropdown').classList.toggle('hidden');
+    });
+    // Select All Users logic
+    const allUsersCheckbox = document.getElementById('all_users');
+    const userCheckboxes = document.querySelectorAll('.user-checkbox');
+    allUsersCheckbox.addEventListener('change', function() {
+        userCheckboxes.forEach(cb => { cb.checked = this.checked; });
+    });
+    userCheckboxes.forEach(cb => {
+        cb.addEventListener('change', function() {
+            if (!this.checked) {
+                allUsersCheckbox.checked = false;
+            } else {
+                allUsersCheckbox.checked = Array.from(userCheckboxes).every(cb => cb.checked);
+            }
+        });
+    });
+    // Search filter
+    document.getElementById("searchInput").addEventListener("keyup", function() {
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll("#urlTableBody tr");
+        rows.forEach(row => {
+            let website = row.cells[1].textContent.toLowerCase();
+            let userId = row.cells[2].textContent.toLowerCase();
+            let username = row.cells[3].textContent.toLowerCase();
+            row.style.display = website.includes(filter) || userId.includes(filter) || username.includes(filter) ? "" : "none";
+        });
+    });
+    function toggleAuditDropdown(event) {
+        const dropdown = document.getElementById('auditDropdownMenu');
+        const chevron = document.getElementById('auditChevron');
+        dropdown.classList.toggle('hidden');
+        chevron.classList.toggle('rotate-180');
+        event.preventDefault();
+    }
+</script>
+</body>
+</html>

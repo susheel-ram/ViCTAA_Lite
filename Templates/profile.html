@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='nav.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+</head>
+<body class="profile-page">
+    <header>
+        <!-- <h2>Welcome, {{ session['username'] }}!</h2> -->
+        <img src="{{ url_for('static', filename='EC_1.png') }}" alt="Logo" class="header-logo">
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('welcome') }}">Home</a></li>
+                <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                <li><a href="{{ url_for('settings') }}">Settings</a></li>
+            </ul>
+        </nav>
+        <form method="POST" action="{{ url_for('logout') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> <!-- Hidden CSRF token -->
+            <button type="submit">Logout</button>
+        </form>
+    </header>
+
+    <div class="container profile-content">
+        <h3>Your Profile</h3>
+        <p>Welcome, {{ user.username }}!</p>
+        <ul>
+            <li><strong>Phone:</strong> {{ user.phone or "Not Provided" }}</li>
+            <li><strong>Email:</strong> {{ user.email }}</li>
+            <li><strong>Role:</strong> {{ user.role }}</li>
+            <li><strong>Payment Due Date:</strong> 
+                {% if user.payment_due_date %}
+                    {{ user.payment_due_date.strftime('%Y-%m-%d') }}
+                {% else %}
+                    Not Available
+                {% endif %}
+            </li>
+            <li><strong>USB Access:</strong> {{ "Yes" if user.usb_access else "No" }}</li>
+            <li><strong>USB Access Expiry:</strong> 
+                {% if user.usb_access_expiry %}
+                    {{ user.usb_access_expiry.strftime('%Y-%m-%d') }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </li>
+            <!-- <li><strong>Bluetooth Access:</strong> {{ "Yes" if user.bluetooth_access else "No" }}</li> -->
+        </ul>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='nav.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .loader {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            color: white;
+            text-align: center;
+            padding-top: 20%;
+            font-size: 24px;
+        }
+
+        /* Overlay background */
+        /* Dark backdrop */
+        #detailModal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(2px); /* subtle blur effect */
+        }
+
+        #detailTitle {
+        position: sticky;
+        top: 0;
+        background: white;
+        padding: 10px 0;
+        z-index: 5;
+        font-size: 20px;
+        font-weight: 600;
+        border-bottom: 1px solid #eee;
+        }
+
+        /* Modal content */
+        #detailModal .popup-content {
+        background: #fff;
+        margin: 8% auto;
+        padding: 20px 30px;
+        border-radius: 16px;
+        width: 45%;
+        max-height: 75vh;
+        overflow-y: auto;
+        box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        animation: popupFade 0.3s ease-in-out;
+        position: relative;
+        }
+
+        /* Modal animation */
+        @keyframes popupFade {
+        from { transform: translateY(-20px); opacity: 0; }
+        to   { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Close button */
+        #detailModal .close {
+        position: absolute;
+        top: 16px;
+        right: 20px;
+        font-size: 24px;
+        font-weight: bold;
+        color: #444;
+        background: #eee;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        line-height: 30px;
+        text-align: center;
+        cursor: pointer;
+        z-index: 10;
+        transition: background 0.3s, color 0.3s;
+        }
+
+        #detailModal .close:hover {
+        background: #e74c3c;
+        color: white;
+        }
+
+        /* Modal title */
+        #detailTitle {
+        font-size: 22px;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 15px;
+        }
+
+        /* Modal body text */
+        #detailBody {
+        font-size: 15px;
+        line-height: 1.6;
+        color: #444;
+        white-space: pre-wrap;
+        }
+    </style>
+    <script>
+        function showLoader() {
+            document.getElementById("loader").style.display = "block";
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <!-- <h2>Welcome, {{ session['username'] }}!</h2> -->
+        <img src="{{ url_for('static', filename='EC_1.png') }}" alt="Logo" class="header-logo">
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('welcome') }}">Home</a></li>
+                <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                <li><a href="{{ url_for('settings') }}">Settings</a></li>
+            </ul>
+        </nav>
+        <form method="POST" action="{{ url_for('logout') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit">Logout</button>
+        </form>
+    </header>
+
+    <div class="container">
+        <form method="POST" action="{{ url_for('test_device') }}" onsubmit="showLoader()">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="test-button">Test Your Device</button>
+        </form>
+        
+        <div class="dashboard">
+            <div class="dashboard-item" onclick="fetchDetail('vulnerabilities')">
+                <h3>Total Vulnerabilities</h3>
+                <p id="vulnerabilities">{{ session['total_vulnerabilities'] }}</p>
+            </div>
+            <div class="dashboard-item" onclick="fetchDetail('threats')">
+                <h3>Total Threats / Missing Patches</h3>
+                <p id="threats">{{ session['total_threats'] }}</p>
+            </div>
+           <div class="dashboard-item" onclick="fetchDetail('ports')">
+                <h3>Total Open Network Ports</h3>
+                <p id="open_ports">{{ session['open_ports_count'] }}</p>
+            </div> 
+            <div class="dashboard-item" onclick="fetchDetail('software')">
+                <h3>Total Software Installed</h3>
+                <p id="software-installed">{{ session['total_software_installed'] }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="scan-block">
+            <h3>Previous Scan on</h3>
+            <p id="scan-time">
+                {% if session.get('previous_scan_time') %}
+                {{ session['previous_scan_time'] }}
+            {% else %}
+                No scan data available.
+            {% endif %}
+            </p>
+        </div>
+
+    <!-- Popup for displaying report -->
+    <div class="popup-overlay" id="reportPopup">
+        <div class="popup-content" id="reportContent"></div>
+    </div>
+
+    <!-- Detail Popup Modal -->
+    <div id="detailModal">
+    <div class="popup-content">
+        <span class="close" onclick="closeDetail()">&times;</span>
+        <h2 id="detailTitle">Details</h2>
+        <div id="detailBody">Loading...</div>
+    </div>
+    </div>
+
+
+
+    <script>
+        function startTest() {
+            fetch('/test-device', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': '{{ csrf_token() }}' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display the report in the popup
+                document.getElementById('reportContent').innerHTML = data.report_html;
+                document.getElementById('reportPopup').style.display = 'block';
+
+                // Close the popup after reviewing
+                document.getElementById('reportPopup').addEventListener('click', () => {
+                    document.getElementById('reportPopup').style.display = 'none';
+                    // Reload page to update dashboard counts
+                    location.reload();
+                });
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+
+
+<canvas id="appUsageChart" style="width: 750px; height: 400px; margin-left:30px;"></canvas> 
+<script>
+    // Parse data from Flask template
+    const appNames = JSON.parse('{{ app_names | tojson | safe }}');
+    const numericTimeSpent = JSON.parse('{{ numeric_time_spent | tojson | safe }}');
+    const formattedTimeSpent = JSON.parse('{{ formatted_time_spent | tojson | safe }}');
+
+    console.log("App Names:", appNames);
+    console.log("Numeric Time Spent:", numericTimeSpent);
+    console.log("Formatted Time Spent:", formattedTimeSpent);
+
+    // Define a single bar color
+    const barColor = '#007BFF';
+
+    // Get canvas context
+    const ctx = document.getElementById('appUsageChart').getContext('2d');
+
+    // Create the bar chart
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: appNames,
+            datasets: [{
+                label: 'Time Spent (hours)',
+                data: numericTimeSpent,
+                backgroundColor: barColor,
+                borderColor: barColor,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: false,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    title: { display: true, text: 'Application Names', font: { size: 14 } }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Time Spent (hours)', font: { size: 14 } },
+                    ticks: { stepSize: 1 }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const index = context.dataIndex;
+                            return `Time Spent: ${formattedTimeSpent[index]}`;
+                        }
+                    }
+                },
+                legend: {
+                    labels: {
+                        font: { size: 14 }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+<script>
+function fetchDetail(type) {
+    fetch(`/get-detail?type=${type}`, { credentials: 'same-origin' }) // <-- add this line
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('detailTitle').innerText = `Detail Report: ${type}`;
+            document.getElementById('detailBody').innerHTML = formatDetailData(data.data);
+            document.getElementById('detailModal').style.display = 'block';
+        })
+        .catch(err => {
+            document.getElementById('detailTitle').innerText = "Error";
+            document.getElementById('detailBody').innerText = "Unable to fetch detail.";
+            document.getElementById('detailModal').style.display = 'block';
+            console.error(err);
+        });
+}
+
+
+function closeDetail() {
+    document.getElementById('detailModal').style.display = 'none';
+}
+
+function formatDetailData(raw) {
+    if (typeof raw === 'string') {
+        try {
+            raw = JSON.parse(raw);
+        } catch(e) {
+            // plain text fallback
+            return raw;
+        }
+    }
+
+    if (Array.isArray(raw)) {
+        return raw.map(item => {
+            if (typeof item === 'object' && item !== null) {
+                return Object.entries(item)
+                    .map(([key, value]) => `<strong>${key}:</strong> ${value}`)
+                    .join('<br>');
+            }
+            return `• ${item}`;
+        }).join('<hr style="margin: 10px 0;">');
+    }
+
+    if (typeof raw === 'object' && raw !== null) {
+        return Object.entries(raw)
+            .map(([key, value]) => `<strong>${key}:</strong> ${value}`)
+            .join('<br>');
+    }
+
+    return raw;
+}
+
+</script>     
+        
+
+    <div class="loader" id="loader">
+        Analyzing your system...<br>
+        <img src="{{ url_for('static', filename='loader.gif') }}" alt="Loading..." style="width: 100px; height: 80px;" />
+    </div>
+</body>
+</html>

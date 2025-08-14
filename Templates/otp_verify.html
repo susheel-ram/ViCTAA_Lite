@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='otp_verify_page.css') }}">
+    <title>Enter OTP</title>
+</head>
+<body>
+  <img src="{{ url_for('static', filename='EC_2-removebg-preview-P.png') }}" alt="Logo" class="top-left-logo">
+  <div class="otp-container">
+  <h4>Enter the OTP sent to your registered email</h4>
+
+  <form action="{{ url_for('login_user') }}" method="post" class="otp-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="username" value="{{ username }}">
+      <input type="hidden" name="password" value="{{ password }}">
+
+      <label for="otp">OTP:</label>
+      <input type="text" id="otp" name="otp" required maxlength="6" pattern="\d{6}" autocomplete="off" />
+
+      <div class="button-group">
+        <button type="submit" name="action" value="verify">Verify OTP</button>
+      </div>
+  </form>
+
+  <form action="{{ url_for('login_user') }}" method="post" class="otp-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="username" value="{{ username }}">
+      <input type="hidden" name="password" value="{{ password }}">
+
+      <div class="button-group">
+        <button type="submit" name="action" value="resend">Resend OTP</button>
+      </div>
+  </form>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <ul class="flash-messages">
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+</div>
+</body>
+</html>
